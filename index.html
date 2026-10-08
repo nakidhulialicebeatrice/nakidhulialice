@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alice ERP – Fabrics & Cosmetics Uganda</title>
+<style>
+:root{--bg:#faf6f1;--card:#fff;--tx:#2a2420;--mu:#80736a;--bd:#e8dfd5;--ac:#b4375a;--ac2:#2f7d5b;--wa:#c98a1b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1715;--card:#26201d;--tx:#f2ebe4;--mu:#a69a90;--bd:#3a312c;--ac:#e0708f;--ac2:#4fb88a;--wa:#e3a93f}}
+:root[data-theme="dark"]{--bg:#1b1715;--card:#26201d;--tx:#f2ebe4;--mu:#a69a90;--bd:#3a312c;--ac:#e0708f;--ac2:#4fb88a;--wa:#e3a93f}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:14px 16px 6px}h1{font:600 20px Georgia,serif;margin:0}h1 span{color:var(--ac)}
+.sub{color:var(--mu);font-size:12px}
+nav{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:20px;cursor:pointer;white-space:nowrap;font:inherit}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{padding:8px 16px 40px;max-width:1000px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.k{font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.04em}.v{font:600 18px Georgia,serif}
+h2{font:600 15px Georgia,serif;margin:0 0 8px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--bd);font-size:13px}th{color:var(--mu);font-weight:500;font-size:11px;text-transform:uppercase}
+td.n,th.n{text-align:right}
+.f{display:flex;flex-wrap:wrap;gap:6px;align-items:end}
+input,select{padding:7px 8px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;min-width:0;max-width:100%}
+.b{background:var(--ac);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit}.b:disabled{opacity:.5}
+.b.s{padding:3px 8px;font-size:12px;background:var(--ac2)}
+.tag{padding:2px 8px;border-radius:10px;font-size:11px;background:var(--bd)}.tag.g{background:var(--ac2);color:#fff}
+.bar{height:10px;background:var(--ac);border-radius:5px}.pos{color:var(--ac2)}.neg{color:var(--ac)}
+.note{font-size:12px;color:var(--mu)}
+</style></head><body>
+<header><h1>Alice <span>ERP</span></h1><div class="sub">Fabrics &amp; Cosmetics Uganda · Prototype · amounts in UGX · VAT 18%</div></header>
+<nav id="nav"></nav><main id="m"></main>
+<script>
+const VAT=.18;let view='Dashboard';
+const seed={
+products:[{id:1,name:'Kitenge Fabric (6 yds)',cat:'Fabrics',price:60000,cost:38000,stock:120},{id:2,name:'Gomesi Silk (per set)',cat:'Fabrics',price:180000,cost:120000,stock:40},{id:3,name:'Barkcloth Wrap',cat:'Fabrics',price:95000,cost:60000,stock:25},{id:4,name:'Shea Butter 250g',cat:'Cosmetics',price:25000,cost:12000,stock:200},{id:5,name:'African Black Soap',cat:'Cosmetics',price:8000,cost:3500,stock:300},{id:6,name:'Vanilla Body Lotion',cat:'Cosmetics',price:18000,cost:8000,stock:150}],
+campaigns:[{id:1,name:'Heroes Day Fabric Sale',channel:'Facebook/Instagram',budget:1200000,leads:84,status:'Active'},{id:2,name:'Shea Glow WhatsApp Blast',channel:'WhatsApp',budget:300000,leads:46,status:'Active'},{id:3,name:'Radio Spot – CBS FM',channel:'Radio',budget:2000000,leads:30,status:'Ended'}],
+orders:[{id:1,date:'2026-09-28',cust:'Nakato Boutique, Kampala',pid:1,qty:20,camp:1,paid:true},{id:2,date:'2026-10-02',cust:'Mukasa Salon, Entebbe',pid:4,qty:30,camp:2,paid:true},{id:3,date:'2026-10-05',cust:'Wedding Planners Ug',pid:2,qty:6,camp:1,paid:false}],
+tx:[{id:1,date:'2026-10-01',type:'out',cat:'Rent',desc:'Shop rent',amt:1500000},{id:2,date:'2026-10-03',type:'out',cat:'Utilities',desc:'UMEME & water',amt:420000}],
+employees:[{id:1,name:'Alice Namutebi',role:'Managing Director',dept:'Management',salary:3500000},{id:2,name:'Brian Okello',role:'Sales Lead',dept:'Sales',salary:1200000},{id:3,name:'Grace Atim',role:'Marketing Officer',dept:'Marketing',salary:900000},{id:4,name:'Joseph Ssemakula',role:'Accountant',dept:'Finance',salary:1500000},{id:5,name:'Sarah Nabirye',role:'Shop Attendant',dept:'Sales',salary:450000}],
+payrolls:[]};
+let db;try{db=JSON.parse(localStorage.getItem('aliceerp')||'null')}catch(e){}
+if(!db)db=JSON.parse(JSON.stringify(seed));
+const save=()=>{try{localStorage.setItem('aliceerp',JSON.stringify(db))}catch(e){}render()};
+const U=n=>'UGX '+Math.round(n).toLocaleString('en-US');
+const nid=a=>a.reduce((m,x)=>Math.max(m,x.id),0)+1;
+const val=id=>document.getElementById(id).value;
+const today=()=>new Date().toISOString().slice(0,10);
+const prod=id=>db.products.find(p=>p.id==id);
+const net=o=>prod(o.pid).price*o.qty;
+function paye(g){let t;if(g<=235000)t=0;else if(g<=335000)t=(g-235000)*.1;else if(g<=410000)t=10000+(g-335000)*.2;else t=25000+(g-410000)*.3;
+ if(g>10000000)t+=(g-10000000)*.1;return t}
+const nssf=g=>g*.05;
+function fin(){const rev=db.orders.reduce((s,o)=>s+net(o),0),cogs=db.orders.reduce((s,o)=>s+prod(o.pid).cost*o.qty,0),exp=db.tx.reduce((s,t)=>s+t.amt,0),
+ ar=db.orders.filter(o=>!o.paid).reduce((s,o)=>s+net(o)*(1+VAT),0),vat=db.orders.reduce((s,o)=>s+net(o)*VAT,0);
+ return{rev,cogs,exp,profit:rev-cogs-exp,ar,vat}}
+const kp=(k,v,c='')=>`<div class="card" style="margin:0"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`;
+const tbl=(h,rows)=>`<div class="tw"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.join('')}</table></div>`;
+const V={
+Dashboard(){const f=fin(),cat={};db.orders.forEach(o=>{const c=prod(o.pid).cat;cat[c]=(cat[c]||0)+net(o)});const mx=Math.max(...Object.values(cat),1);
+ const low=db.products.filter(p=>p.stock<30);
+ return`<div class="grid">${kp('Revenue (net)',U(f.rev))}${kp('Net profit',U(f.profit),f.profit>=0?'pos':'neg')}${kp('Receivables',U(f.ar))}${kp('Staff',db.employees.length)}${kp('Leads (active campaigns)',db.campaigns.filter(c=>c.status=='Active').reduce((s,c)=>s+c.leads,0))}${kp('VAT output',U(f.vat))}</div>
+ <div class="card"><h2>Revenue by category</h2>${Object.entries(cat).map(([k,v])=>`<div style="margin:6px 0">${k} · ${U(v)}<div class="bar" style="width:${v/mx*100}%"></div></div>`).join('')}</div>
+ <div class="card"><h2>Alerts</h2>${low.map(p=>`<div>⚠ Low stock: ${p.name} (${p.stock})</div>`).join('')}${db.orders.filter(o=>!o.paid).map(o=>`<div>💰 Unpaid INV-${o.id}: ${o.cust}</div>`).join('')||''}</div>
+ <p class="note">Integration: campaigns → orders → invoices → finance; payroll → expenses. Data saves in this browser.</p>
+ <button class="b" onclick="if(confirm('Reset demo data?')){db=JSON.parse(JSON.stringify(seed));save()}">Reset demo data</button>`},
+Marketing(){const rows=db.campaigns.map(c=>{const rev=db.orders.filter(o=>o.camp==c.id).reduce((s,o)=>s+net(o),0),roi=c.budget?(rev-c.budget)/c.budget*100:0;
+ return`<tr><td>${c.name}</td><td>${c.channel}</td><td class="n">${U(c.budget)}</td><td class="n">${c.leads}</td><td class="n">${c.leads?U(c.budget/c.leads):'-'}</td><td class="n">${U(rev)}</td><td class="n ${roi>=0?'pos':'neg'}">${roi.toFixed(0)}%</td><td><span class="tag ${c.status=='Active'?'g':''}">${c.status}</span> ${c.status=='Active'?`<button class="b s" onclick="endC(${c.id})">End</button>`:''}</td></tr>`});
+ return`<div class="card"><h2>New campaign</h2><div class="f"><input id="cn" placeholder="Campaign name"><select id="cc"><option>Facebook/Instagram</option><option>WhatsApp</option><option>Radio</option><option>TikTok</option><option>Roadshow</option></select><input id="cb" type="number" placeholder="Budget UGX"><input id="cl" type="number" placeholder="Leads"><button class="b" onclick="addC()">Add &amp; post spend</button></div><div class="note">Budget posts to Finance as a marketing expense.</div></div>
+ <div class="card"><h2>Campaign performance</h2>${tbl(['Campaign','Channel','Budget','Leads','Cost/Lead','Revenue','ROI','Status'],rows)}</div>`},
+Sales(){const f=db.orders.map(o=>{const n=net(o);return`<tr><td>INV-${o.id}</td><td>${o.date}</td><td>${o.cust}</td><td>${prod(o.pid).name} ×${o.qty}</td><td class="n">${U(n*(1+VAT))}</td><td>${o.paid?'<span class="tag g">Paid</span>':`<button class="b s" onclick="pay(${o.id})">Mark paid</button>`}</td></tr>`}).reverse();
+ return`<div class="card"><h2>New order / invoice</h2><div class="f"><input id="oc" placeholder="Customer"><select id="op">${db.products.map(p=>`<option value="${p.id}">${p.name} – ${U(p.price)}</option>`).join('')}</select><input id="oq" type="number" min="1" placeholder="Qty" style="width:80px"><select id="oa"><option value="0">No campaign</option>${db.campaigns.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select><button class="b" onclick="addO()">Create invoice</button></div><div class="note">Reduces stock automatically; 18% VAT added.</div></div>
+ <div class="card"><h2>Orders &amp; invoices</h2>${tbl(['No.','Date','Customer','Items','Total (incl. VAT)',''],f)}</div>
+ <div class="card"><h2>Inventory</h2>${tbl(['Product','Category','Price','Cost','Margin','Stock'],db.products.map(p=>`<tr><td>${p.name}</td><td>${p.cat}</td><td class="n">${U(p.price)}</td><td class="n">${U(p.cost)}</td><td class="n">${((p.price-p.cost)/p.price*100).toFixed(0)}%</td><td class="n ${p.stock<30?'neg':''}">${p.stock}</td></tr>`))}</div>`},
+Finance(){const f=fin();
+ return`<div class="grid">${kp('Revenue',U(f.rev))}${kp('Cost of goods',U(f.cogs))}${kp('Operating expenses',U(f.exp))}${kp('Net profit',U(f.profit),f.profit>=0?'pos':'neg')}${kp('Receivables',U(f.ar))}${kp('VAT output (URA)',U(f.vat))}</div>
+ <div class="card"><h2>Record expense</h2><div class="f"><select id="ec"><option>Rent</option><option>Utilities</option><option>Transport</option><option>Stock purchase</option><option>Other</option></select><input id="ed" placeholder="Description"><input id="ea" type="number" placeholder="Amount UGX"><button class="b" onclick="addE()">Post</button></div></div>
+ <div class="card"><h2>Expense ledger</h2>${tbl(['Date','Category','Description','Amount'],db.tx.slice().reverse().map(t=>`<tr><td>${t.date}</td><td>${t.cat}</td><td>${t.desc}</td><td class="n">${U(t.amt)}</td></tr>`))}</div>`},
+HRM(){const mo=today().slice(0,7),done=db.payrolls.includes(mo);
+ const rows=db.employees.map(e=>{const p=paye(e.salary),n=nssf(e.salary);return`<tr><td>${e.name}</td><td>${e.role}</td><td>${e.dept}</td><td class="n">${U(e.salary)}</td><td class="n">${U(p)}</td><td class="n">${U(n)}</td><td class="n">${U(e.salary-p-n)}</td></tr>`});
+ const g=db.employees.reduce((s,e)=>s+e.salary,0);
+ return`<div class="card"><h2>Add employee</h2><div class="f"><input id="hn" placeholder="Full name"><input id="hr" placeholder="Role"><select id="hd"><option>Sales</option><option>Marketing</option><option>Finance</option><option>Management</option><option>Production</option></select><input id="hs" type="number" placeholder="Gross salary"><button class="b" onclick="addH()">Add</button></div></div>
+ <div class="card"><h2>Payroll – ${mo}</h2>${tbl(['Name','Role','Dept','Gross','PAYE','NSSF 5%','Net pay'],rows)}<p>Total gross ${U(g)} + employer NSSF 10% ${U(g*.1)} = <b>${U(g*1.1)}</b></p><button class="b" ${done?'disabled':''} onclick="runP()">${done?'Payroll posted ✔':'Run payroll &amp; post to Finance'}</button><div class="note">PAYE uses indicative Uganda monthly bands (0% to 235k, 10%, 20%, 30% above 410k, +10% above 10m). Verify against current URA rates.</div></div>`}};
+function render(){document.getElementById('nav').innerHTML=Object.keys(V).map(k=>`<button class="${k==view?'on':''}" onclick="view='${k}';render()">${k}</button>`).join('');document.getElementById('m').innerHTML=V[view]()}
+function addC(){const n=val('cn'),b=+val('cb');if(!n||!b)return alert('Enter name and budget');db.campaigns.push({id:nid(db.campaigns),name:n,channel:val('cc'),budget:b,leads:+val('cl')||0,status:'Active'});db.tx.push({id:nid(db.tx),date:today(),type:'out',cat:'Marketing',desc:'Campaign: '+n,amt:b});save()}
+function endC(i){db.campaigns.find(c=>c.id==i).status='Ended';save()}
+function addO(){const q=+val('oq'),p=prod(val('op'));if(!val('oc')||!q)return alert('Enter customer and quantity');if(q>p.stock)return alert('Only '+p.stock+' in stock');p.stock-=q;db.orders.push({id:nid(db.orders),date:today(),cust:val('oc'),pid:p.id,qty:q,camp:+val('oa'),paid:false});save()}
+function pay(i){db.orders.find(o=>o.id==i).paid=true;save()}
+function addE(){const a=+val('ea');if(!a)return;db.tx.push({id:nid(db.tx),date:today(),type:'out',cat:val('ec'),desc:val('ed')||val('ec'),amt:a});save()}
+function addH(){if(!val('hn')||!val('hs'))return;db.employees.push({id:nid(db.employees),name:val('hn'),role:val('hr'),dept:val('hd'),salary:+val('hs')});save()}
+function runP(){const g=db.employees.reduce((s,e)=>s+e.salary,0),mo=today().slice(0,7);db.tx.push({id:nid(db.tx),date:today(),type:'out',cat:'Payroll',desc:'Payroll '+mo+' (gross + employer NSSF)',amt:g*1.1});db.payrolls.push(mo);save()}
+render();
+</script></body></html>
